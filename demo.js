@@ -49,7 +49,7 @@ function getAreaName(marker) {
         var add = res.residentialAddress[0].parcelAddress[0];
         marker.fireEvent('updatecap', `${add.siDo} ${add.siGunGu} ${add.eupMyeonDong} (${pos.lat}, ${pos.lng})`)
     }).catch((err)=>{
-        console.log(err)
+        marker.fireEvent('updatecap', `주소를 확인 할 수 없습니다. (${pos.lat}, ${pos.lng})`)
     });
 }
 
