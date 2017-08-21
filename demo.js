@@ -26,6 +26,32 @@ if (typeof args['lat'] === 'undefined') args['lat'] = '37.4713571';
 if (typeof args['lng'] === 'undefined' ) args['lng']='127.0271621';
 
 var latlng = new olleh.maps.LatLng(Number(args['lat']), Number(args['lng']));
+var state = 'fetching';
+
+function getAreaName(marker) {
+    var tmp = olleh.maps.LatLng.valueOf(marker.getPosition());
+    var pos = {lat:tmp.y, lng:tmp.x};
+
+    let init = { method: 'GET'
+                    , mode: 'cors'
+                    , headers: { 'Content-Type': 'application/json'
+                                , 'charset':'UTF-8'
+                                , Authorization:'Bearer 5315ab36a0600563910cf47f62919d8b7a2a864551b46fe658c8f41dcce81fa081b32887' 
+                    } 
+                };
+    let request = new Request(`https://gis.kt.com/search/v1.0/utilities/geocode?point.lat=${pos.lat}&point.lng=${pos.lng}`, init);
+    fetch(request).then((res) => {
+        if (res.ok)
+            return res.json();
+        else 
+            throw new Error('Error returned');
+    }).then((res)=>{
+        var add = res.residentialAddress[0].parcelAddress[0];
+        marker.fireEvent('updatecap', `${add.siDo} ${add.siGunGu} ${add.eupMyeonDong} (${pos.lat}, ${pos.lng})`)
+    }).catch((err)=>{
+        console.log(err)
+    });
+}
 
 function onLoad(){
     /**
@@ -46,10 +72,12 @@ function onLoad(){
         position: latlng,
         map: map,
         title: "여기",
-        caption: latlng.toString(),
+        caption: 'querying',
         animation: olleh.maps.overlay.Marker.BOUNCE
     });
-    
+
+    marker.onEvent('updatecap', function(event, payload){marker.setCaption(payload)});
+    getAreaName(marker);
     /**
      * 마커에 클릭 했을 경우 발생하는 이벤트 
      */
@@ -66,7 +94,8 @@ function onLoad(){
     function onMapClick(event, payload) {
         if (marker) {
             marker.setPosition(event.getCoord());
-            marker.setCaption(olleh.maps.LatLng.valueOf(marker.getPosition()).toString());
+            marker.setCaption('querying');
+            getAreaName(marker);
         } else {
             marker = new olleh.maps.overlay.Marker({
                 position: event.getCoord(),
@@ -76,5 +105,7 @@ function onLoad(){
             });
         }
     }
+    
+    //map.onEvent('click', onMapClick);
     map.onEvent('longpress', onMapClick);
 }
