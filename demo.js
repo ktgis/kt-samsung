@@ -35,7 +35,6 @@ function getAreaName(marker) {
     let init = { method: 'GET'
                     , mode: 'cors'
                     , headers: { 'Content-Type': 'application/json'
-                                , 'charset':'UTF-8'
                                 , Authorization:'Bearer 5315ab36a0600563910cf47f62919d8b7a2a864551b46fe658c8f41dcce81fa081b32887' 
                     } 
                 };
@@ -106,6 +105,6 @@ function onLoad(){
         }
     }
     
-    //map.onEvent('click', onMapClick);
+//    map.onEvent('click', onMapClick);
     map.onEvent('longpress', onMapClick);
 }
